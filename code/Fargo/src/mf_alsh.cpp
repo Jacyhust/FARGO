@@ -12,7 +12,7 @@
 #include <numeric>
 #include <iomanip>
 
-#define MAXSIZE 20000
+#define MAXSIZE 20480
 #define pi 3.141592653
 #define CANDIDATES 100
 #define MINFLOAT -3.40282e+038
@@ -118,9 +118,8 @@ void Hash::SetHash()
 		hashpar.rndAs2[i] = new float[1];
 	}
 
-	//std::mt19937 rng(int(std::time(0)));
-	std::mt19937 rng(0);
-	std::normal_distribution<float> nd;//nd是一个norm随机数生成器，mu=0，sigma=1
+	std::mt19937 rng(int(std::time(0)));
+	std::normal_distribution<float> nd;
 	for (int j = 0; j < S; j++)
 	{
 		for (int i = 0; i < dim; i++)
@@ -137,8 +136,7 @@ void Hash::SetHash()
 void Hash::GetHash(Preprocess& prep)
 {
 	float* dataExpend = new float[N];
-	//std::mt19937 rng(int(std::time(0)));
-	std::mt19937 rng(0);
+	std::mt19937 rng(int(std::time(0)));
 	std::uniform_real_distribution<float> ur(-1, 1);
 	int count = 0;
 	for (int j = 0; j < N; j++)
@@ -267,221 +265,6 @@ void Query::cal_hash(Hash& hash, Preprocess& prep)
 	}
 }
 
-void Query::sift(Hash& hash, Preprocess& prep)
-{
-	lsh::timer timer;
-	ProbingSequence = new indice_pair[(size_t)(hash.L * (size_t)(1 << hash.K) + 1)];
-	SequenceLen = 0;
-
-	indice_pair ip0, ip1;
-	if (!global_min.empty()) {
-		system("pause");
-	}
-	keys.resize(hash.L);
-	for (int i = 0; i < hash.L; i++) {
-		int key = 0;
-		for (int j = 0; j < hash.K; j++) {
-			key = key << 1;
-			if (this->hashval[i * hash.K + j] > 0) {
-				++key;
-			}
-		}
-		keys[i] = key;
-		ip0.key = key + weigh[i][0].bias;
-
-		ip0.end = 0;
-		ip0.table_id = i;
-		ip0.score = weigh[i][0].val;
-		global_min.push(ip0);
-	}
-
-	//int UB = k + CANDIDATES;
-
-	std::vector<bool> flag_(hash.N, false);
-	std::priority_queue<Res> res_PQ;
-	//Res res_pair;
-
-	int num_cand = 0;
-	inp_LB = MINFLOAT;
-	int num_res = 0;
-	costs.resize(hash.parti.num_chunk);
-
-
-	for (int t = hash.parti.num_chunk - 1; t >= 0; t--)
-	{
-		if (sqrt(hash.parti.MaxLen[t]) * norm < inp_LB/c) {
-			break;
-		}
-
-		if (hash.parti.nums[t] < 4 * CANDIDATES) {
-			int num_cand = hash.parti.EachParti[t].size();
-			for (int j = 0; j < num_cand; j++)
-			{
-				int& x = hash.parti.EachParti[t][j];
-				//res_pair.id = hash.parti.EachParti[t][j];
-
-				//res_pair.inp = 0;
-				//for (int i = 0; i < dim; ++i) {
-				//	res_pair.inp += mydata[res_pair.id][i] * query_point[i];
-				//}
-				res_PQ.push(Res(x, cal_inner_product(mydata[x], query_point, dim)));
-				//res_PQ.push(res_pair);
-				num_res++;
-				costs[t]++;
-				if (num_res > UB)
-				{
-					res_PQ.pop();
-					num_res--;
-				}
-			}
-			if (num_res == UB && inp_LB < res_PQ.top().inp)
-				inp_LB = res_PQ.top().inp;
-			continue;
-		}
-		chunks = t;
-		knn(res_PQ, hash, prep, hash.myIndexes[t], flag_, num_res);
-		if (num_res == UB && inp_LB < res_PQ.top().inp)
-			inp_LB = res_PQ.top().inp;
-	}
-
-	res.clear();
-
-	int len = res_PQ.size();
-	res.resize(len);
-	int rr = len - 1;
-	while (rr >= 0)
-	{
-		res[rr] = res_PQ.top();
-		res_PQ.pop();
-		rr--;
-	}
-	for (int i = 0; i < hash.parti.num_chunk; i++)
-	{
-		cost += costs[i];
-	}
-	time_verify = timer.elapsed();
-}
-
-void Query::knn(std::priority_queue<Res>& res_PQ,
-	Hash& hash, Preprocess& prep,
-	std::vector<int>** table,
-	std::vector<bool>& flag_, int& num_res)
-{
-	int cnt = 0;
-	float inpK = -1.0f;
-	float Max_inp = this->norm * sqrt(hash.parti.MaxLen[chunks]);
-
-	for (int i = 0; i < hash.L; i++) {
-		for (auto& x : table[i][keys[i]]) {
-			if (flag_[x] == false)
-			{
-				//float inp = 0;
-				//for (int i = 0; i < dim; ++i) {
-				//	res_pair.inp += mydata[x][i] * query_point[i];
-				//}
-				res_PQ.emplace(Res(x,cal_inner_product(mydata[x],query_point,dim)));
-
-				//res_PQ.push(res_pair);
-				num_res++;
-				cnt++;
-				costs[chunks]++;
-				if (num_res > UB){
-					res_PQ.pop();
-					num_res--;
-					inpK = res_PQ.top().inp;
-				}
-				flag_[x] = true;
-			}
-		}
-	}
-
-	/*if (cnt >= MaxCost)
-		return;*/
-
-	float Max_score = sqrt(2.0f / pi);
-	float coeff = (pi / Max_score);
-	
-
-	int probingNum = 0;
-
-	indice_pair ip0, ip1;
-
-	int len = hash.K;
-	float reduced_score, est_inp;
-
-	int MaxNum = hash.parti.nums[chunks]
-		* hash.L
-		;
-	float beta = 1.0f;
-
-	//cnt = 2 * MaxNum;
-	while (cnt < (int)(beta*MaxNum)
-		&& (probingNum < SequenceLen||(!global_min.empty()))
-		)//bug2020.5.26: STL的优先队列没有边界检测，吐血
-	{
-		if (probingNum < SequenceLen) {
-			ip1 = ProbingSequence[probingNum];
-			++probingNum;
-		}
-		else {
-			//printf("Now>>>>>>>> %d,%d", probingNum, SequenceLen);
-			ip1 = global_min.top();
-			ProbingSequence[SequenceLen++] = ip1;
-			++probingNum;
-
-			global_min.pop();
-			if (ip1.end < len - 1) {
-				this->shift(ip1, ip0);
-				global_min.push(ip0);
-
-				this->expand(ip1, ip0);
-				global_min.push(ip0);
-			}
-		}
-		if (table[ip1.table_id][ip1.key].empty()) {
-			continue;
-		}
-		else {
-			for (auto& x : table[ip1.table_id][ip1.key]) {
-				cnt++;
-				if (flag_[x] == false)
-				{
-					//res_pair.id = x;
-					//res_pair.inp = 0;
-					//for (int i = 0; i < dim; ++i) {
-					//	res_pair.inp += mydata[x][i] * query_point[i];
-					//}
-					//res_PQ.push(res_pair);
-
-
-
-					res_PQ.emplace(Res(x, cal_inner_product(mydata[x], query_point, dim)));
-					num_res++;
-					//cnt++;
-					costs[chunks]++;
-					if (num_res > UB){
-						res_PQ.pop();
-						num_res--;
-						inpK = res_PQ.top().inp;
-					}
-					flag_[x] = true;
-				}
-			}
-		}
-		if (inpK > 0) {
-			//beta = 2 * pow(1 - varphi(ip1.score, acos(inpK / (Max_inp)), hash), hash.L);
-			float theta = acos(std::min(0.9999f, inpK / (c * Max_inp)));
-			//std::cout << theta << std::endl;
-			float pr = varphi(ip1.score, theta, hash);
-			//if ((int)(2 * pr * (hash.parti.nums[chunks] - cnt)//* hash.L)< 1) break;
-			if (pow(1 - pr, hash.L) < 0.2) break;
-			//if (cnt > 0.03 * hash.parti.nums[chunks] + k) break;
-		}
-
-	}//endwhile
-	//std::cout << chunks << "," << beta << "," << flag << "," << ip1.score << "," << acos(inpK / (Max_inp)) << "," << cnt << "," << (int)(beta * MaxNum) << std::endl;
-}
-
 void Query::siftF(Hash& hash, Preprocess& prep)
 {
 	lsh::timer timer;
@@ -607,21 +390,20 @@ void Query::knnF(Res* res_PQ,
 	float reduced_score, est_inp;
 
 	int MaxNum = hash.parti.nums[chunks]
-		* hash.L
+		* 1.0
 		;
 	float beta = 1.0f;
 
 	//cnt = 2 * MaxNum;
 	while (cnt < (int)(beta * MaxNum)
 		&& (probingNum < SequenceLen || (!global_min.empty()))
-		)//bug2020.5.26: STL的优先队列没有边界检测，吐血
+		)//bug2020.5.26: STL锟斤拷锟斤拷锟饺讹拷锟斤拷没锟叫边斤拷锟解，锟斤拷血
 	{
 		if (probingNum < SequenceLen) {
 			ip1 = ProbingSequence[probingNum];
 			++probingNum;
 		}
 		else {
-			//printf("Now>>>>>>>> %d,%d", probingNum, SequenceLen);
 			ip1 = global_min.top();
 			ProbingSequence[SequenceLen++] = ip1;
 			++probingNum;
@@ -658,11 +440,10 @@ void Query::knnF(Res* res_PQ,
 		if (inpK > 0) {
 			float theta = acos(std::min(0.9999f, inpK / (c * Max_inp)));
 			float pr = varphi(ip1.score, theta, hash);
-			if (pow(1 - pr, hash.L) < 0.2) break;
+			if (pow(1 - pr, hash.L) < 0.1) break;
 		}
 
 	}//endwhile
-	//std::cout << chunks << "," << beta << "," << flag << "," << ip1.score << "," << acos(inpK / (Max_inp)) << "," << cnt << "," << (int)(beta * MaxNum) << std::endl;
 }
 
 void Query::shift(indice_pair& ip0, indice_pair& res)
@@ -685,18 +466,7 @@ float Query::varphi(float x, float theta, Hash& hash)
 {
 	int c0 = (int)floor((x - hash.smin) / hash.sstep);
 	int r0 = (int)floor((theta - hash.tmin) / hash.tstep);
-	//std::cout << "Test rc:" << r0 << "," << c0 << std::endl;
 	return hash.phi[std::min(r0, hash.rows - 1)][std::min(c0, hash.cols - 1)];
-
-	//int c0 = (int)floor((x - smin) / sstep);
-	//int r0 = (int)floor((theta - tmin) / tstep);
-	//r0 = r0 < rows - 1 ? r0 : rows - 1;
-	////r0 = r0 > 0 ? r0 : 0;
-	////c0 = c0 > 0 ? c0 : 0;
-	//c0 = c0 < cols - 1 ? c0 : cols - 1;
-
-	////std::cout << "Test rc:" << r0 << "," << c0 << std::endl;
-	//return myPhi[r0][c0];
 }
 
 Query::~Query()

@@ -30,14 +30,6 @@ Preprocess::Preprocess(const std::string& path, const std::string& ben_file_)
 	data_file = path;
 	ben_file = ben_file_;
 	ben_create();
-
-	//InnerProduct = new float*[201];
-	//for (int i = 0; i < 201; ++i) {
-	//	InnerProduct[i] = new float[data.N];
-	//	for (int j = 0; j < data.N; ++j) {
-	//		InnerProduct[i][j] = cal_inner_product(data.val[i], data.val[j], data.dim);
-	//	}
-	//}
 }
 
 void Preprocess::load_data(const std::string& path)
@@ -75,7 +67,6 @@ void Preprocess::cal_SquareLen()
 	for (int i = 0; i < data.N; ++i) {
 		SquareLen[i] = cal_inner_product(data.val[i], data.val[i], data.dim);
 	}
-	//这里包含数组选取最大值和最小值的函数
 
 	MaxLen = *std::max_element(SquareLen, SquareLen + data.N);
 }
@@ -90,7 +81,7 @@ typedef struct Tuple
 }Tuple;
 bool comp(const Tuple& a, const Tuple& b)
 {
-	return a.inp > b.inp;//若前一个元素大于后一个元素，则返回真，否则返回假，即可自定义排序方式
+	return a.inp > b.inp;
 }
 
 void Preprocess::ben_make()
@@ -110,7 +101,6 @@ void Preprocess::ben_make()
 	{
 		std::vector<Tuple> dists;
 		dists.clear();
-		//dists.resize(data.N);
 		for (int i = 0; i < data.N; i++)
 		{
 			a.id = i;
@@ -175,7 +165,7 @@ void Preprocess::ben_create()
 	std::ifstream in(ben_file.c_str(), std::ios::binary);
 	in.read((char*)&a_test, sizeof(int));
 	in.close();
-	if (a_test > 0 && a_test <= data.N)//判断是否能改写a_test
+	if (a_test > 0 && a_test <= data.N)
 	{
 		std::cout << "LOADING BENMARK..." << std::endl;
 		timer.restart();
@@ -199,7 +189,6 @@ void Preprocess::ben_create()
 Preprocess::~Preprocess()
 {
 	clear_2d_array(data.val, data.N);
-	//clear_2d_array(InnerProduct, 200);
 	clear_2d_array(benchmark.indice, benchmark.N);
 	clear_2d_array(benchmark.innerproduct, benchmark.N);
 	delete[] SquareLen;
@@ -289,9 +278,7 @@ void Partition::display()
 }
 
 Partition::~Partition()
-{
-
-}
+{}
 
 PartitionNR::PartitionNR(int m_, Preprocess& prep)
 {
@@ -370,9 +357,7 @@ void PartitionNR::display()
 }
 
 PartitionNR::~PartitionNR()
-{
-
-}
+{}
 
 Parameter::Parameter(Preprocess& prep, int L_, int K_, int M_)
 {
@@ -502,5 +487,4 @@ bool Parameter::operator = (const Parameter& rhs)
 }
 
 Parameter::~Parameter()
-{
-}
+{}

@@ -9,7 +9,7 @@
 #include <time.h>
 #include <algorithm>
 #include "fastL2_ip.h"
-
+#include <chrono>
 namespace lsh
 {
 	class progress_display
@@ -80,20 +80,21 @@ namespace lsh
 			}
 		}
 	};
+
 	/**
 	 * A timer object measures elapsed time, and it is very similar to boost::timer.
 	 */
 	class timer
 	{
 	public:
-		timer() : time(double(clock())) {};
+		timer() : time_begin(std::chrono::steady_clock::now()) {};
 		~timer() {};
 		/**
 		 * Restart the timer.
 		 */
 		void restart()
 		{
-			time = double(clock());
+			time_begin = std::chrono::steady_clock::now();
 		}
 		/**
 		 * Measures elapsed time.
@@ -102,10 +103,11 @@ namespace lsh
 		 */
 		double elapsed()
 		{
-			return (double(clock()) - time) / CLOCKS_PER_SEC;
+			std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
+			return (std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_begin).count())*1e-6;// / CLOCKS_PER_SEC;
 		}
 	private:
-		double time;
+		std::chrono::steady_clock::time_point time_begin;
 	};
 }
 

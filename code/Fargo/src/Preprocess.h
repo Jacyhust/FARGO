@@ -9,7 +9,6 @@ class Preprocess
 public:
 	Data data;
 	float* SquareLen;
-	//float** InnerProduct;
 	Ben benchmark;
 	float MaxLen;
 	std::string data_file;

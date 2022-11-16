@@ -28,9 +28,11 @@ public:
 	int res_num;
 	//
 	float ratio;
+	// k-th ratio
+	float kRatio=0.0f;
 public:
 	Performance();
-	//ccccc
+	//update the Performance for each query
 	void update(Query& query, Preprocess& prep);
 	~Performance();
 };
@@ -81,15 +83,9 @@ void Performance<Query>::update(Query& query, Preprocess& prep)
 	for (int j = 0; j < num0; j++)
 	{
 		float rate = query.res[j].inp / prep.benchmark.innerproduct[query.flag][j];
-
-		//if (rate > 1.1 || rate < 0.001)
-		//{
-		//	std::cout << "An abnormol ratio appears in:" << query.flag << ',' << j << ','
-		//		<< query.res[j].inp << ',' << prep.benchmark.innerproduct[query.flag][j] <<
-		//		std::endl;
-		//	system("pause");
-		//}
 		ratio += rate;
+
+		if(j==num0-1) kRatio+=rate;
 
 		set1.insert(query.res[j].id);
 		set2.insert((int)prep.benchmark.indice[query.flag][j]);

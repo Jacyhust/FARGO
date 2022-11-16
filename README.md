@@ -3,7 +3,8 @@
 ## Introduction
 This is a source code for the algorithm described in the paper **[FARGO: Fast Maximum Inner Product Search via Global Multi-Probing (Submitted to PVLDB 2023)]**. We call it as **fg** project。
 ## Compilation
-**fg** project is written by **C++** and is simple and easy to use. It can be complied by **g++** in **Linux** and **MSVC** in **Windows**.
+The **fg** project is written by **C++** (under `C++17` standard) and is simple and easy to use. It can be complied by **g++** in **Linux** and **MSVC** in **Windows**. To completely support `C++17` standard, the **g++** version is suggested to be at least **version 8** and **MSVC** version is suggested to be at least **MSVC 19.15 (Visual Studio 2017 15.8)**.
+
 ### Installation
 #### Windows
 We can use **Visual Studio 2019** (Other version of Visual Studio should also work but remains untested) to build the project with importing all the files in the directory `./code/Fargo/src/`.

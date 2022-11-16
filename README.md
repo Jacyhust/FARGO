@@ -49,7 +49,7 @@ For other dataset we use, you can get the raw data from following links: [MNIST]
 
 
 ## Result
-The experimental result is saved in the directory `./code/Fargo/results/` as the file `Running_result.txt`
+The experimental result is saved in the directory `./code/Fargo/results/` as the file `Running_result.txt`.
 
 
 

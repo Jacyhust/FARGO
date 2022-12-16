@@ -1,4 +1,4 @@
-# The Source Code for FARGO (Submitted to PVLDB 2023)
+# The Source Code for FARGO (PVLDB 2023)
 -----------------------------------------------------------------------------------------------------------------
 ## Introduction
 This is a source code for the algorithm described in the paper **[FARGO: Fast Maximum Inner Product Search via Global Multi-Probing (Submitted to PVLDB 2023)]**. We call it as **fg** project。
@@ -54,4 +54,4 @@ The experimental result is saved in the directory `./code/Fargo/results/` as the
 
 
 ## Reference
-**[FARGO: Fast Maximum Inner Product Search via Global Multi-Probing (Submitted to PVLDB 2023)]**
+**[FARGO: Fast Maximum Inner Product Search via Global Multi-Probing (PVLDB 2023)]**

@@ -1,7 +1,7 @@
 # The Source Code for FARGO (PVLDB 2023)
 -----------------------------------------------------------------------------------------------------------------
 ## Introduction
-This is a source code for the algorithm described in the paper **[FARGO: Fast Maximum Inner Product Search via Global Multi-Probing (Submitted to PVLDB 2023)]**. We call it as **fg** project.
+This is a source code for the algorithm described in the paper **[FARGO: Fast Maximum Inner Product Search via Global Multi-Probing (PVLDB 2023)]**. We call it as **fg** project.
 ## Compilation
 The **fg** project is written by **C++** (under `C++17` standard) and is simple and easy to use. It can be complied by **g++** in **Linux** or **MSVC** in **Windows**. To completely support `C++17` standard, the **g++** version is suggested to be at least **version 8** and **MSVC** version is suggested to be at least **MSVC 19.15 (Visual Studio 2017 15.8)**.
 

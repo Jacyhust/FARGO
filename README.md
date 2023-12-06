@@ -54,4 +54,22 @@ The experimental result is saved in the directory `./code/Fargo/results/` as the
 
 
 ## Reference
-**[FARGO: Fast Maximum Inner Product Search via Global Multi-Probing (PVLDB 2023)]**
+Please use the following bibtex to cite this work when you use **FARGO** in your paper.
+```tex
+@article{DBLP:journals/pvldb/ZhaoZYLXZJ23,
+	author       = {Xi Zhao and
+	Bolong Zheng and
+	Xiaomeng Yi and
+	Xiaofan Luan and
+	Charles Xie and
+	Xiaofang Zhou and
+	Christian S. Jensen},
+	title        = {{FARGO:} Fast Maximum Inner Product Search via Global Multi-Probing},
+	journal      = {Proc. {VLDB} Endow.},
+	volume       = {16},
+	number       = {5},
+	pages        = {1100--1112},
+	year         = {2023}
+}
+```
+If you meet any issue on the code or take interest in our work, please feel free to contact me (xi.zhao@connect.ust.hk). Thank you.
